@@ -52,7 +52,6 @@
 
 	function parseFeature(content) {
 
-		console.log(0);
 		var fileName = content.fileName;
 		var contentLines = content.content.toString().split('\n');
 
@@ -68,8 +67,6 @@
 			detectStep
 		]
 
-		console.log(1);
-		debugger;
 		for (var index = 0, line; index < contentLines.length; index++) {
 			
 			line = contentLines[index];
