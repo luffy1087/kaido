@@ -1,4 +1,4 @@
 (function() {
-	var parser = require('./parser/parser.js');
+	var parser = require('./parser/parser');
 	parser.parse();
 })();
