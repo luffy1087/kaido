@@ -1,11 +1,17 @@
 (function() {
 
-	//regurar expressions
+	//EXPRESSION DEPENDENCY	
+	var R_START_WITH_DOUBLE_TABS = /^\t\t/;
+	var R_START_WITH_TAB = /^\t/;
+	var R_MIN_TWO_WORDS = /(\s*\b\w+\b){2,}/;
+	var R_STEP_INFO = /^\t\t?(\b\w+\b)\s+([\w\s\[\]]+)$/;
+	//REGULAR EXPRESSION
 	var R_SETUP = /^SetUp:$/m
 	var R_TEARDOWN = /^TearDown:$/m;
 	var R_FEATURE = /^Feature:(.+)/m;
 	var R_SCENARIOS = /^\tScenario:(.+)/m;
-	var R_STEPS = /^\t\t?([^\s]+)(.+)/m;
+	var R_TABLE = /^\tWhere:/m;
+	var R_STEPS = [R_START_WITH_TAB, R_MIN_TWO_WORDS, R_STEP_INFO];
 
 	function camelize(s) {
 		return s.replace(/\s(.)/g, function(whatFound) {
@@ -14,10 +20,9 @@
 	}
 	
 	function detectFeature(line, feature) {
-		//detects feature
-		var featureNameInfo = line.match(R_FEATURE);
+		var featureNameInfo = this.executeRegExp(line, R_FEATURE);
 		var featureName;
-		if (!!featureNameInfo) { //if the line is a feature
+		if (!!featureNameInfo) {
 			featureName = featureNameInfo[1].trim();
 			feature.name = featureName;
 		}
@@ -28,9 +33,10 @@
 	}
 
 	function detectScenario(line, feature) {
+		var scenarioName, camelScenarioName;
 		var scenarios = feature.scenarios;
-		var scenarioInfo = line.match(R_SCENARIOS), scenarioName, camelScenarioName; 
-		if (!!scenarioInfo) { // if the line is a scenario
+		var scenarioInfo = this.executeRegExp(line, R_SCENARIOS);
+		if (!!scenarioInfo) {
 			scenarioName = scenarioInfo[1].trim();
 			camelScenarioName = camelize(scenarioName);
 			scenarios.push({
@@ -49,7 +55,7 @@
 		//detects every steps if scenario was detected, else check setUp and tearDown
 		var command = 'detectStep';
 		var executed = false;
-		var stepInfo = line.match(R_STEPS);
+		var stepInfo = this.executeRegExp(line, R_STEPS);
 		if (!!stepInfo) {
 			//step vars
 			var stepKeyWord = stepInfo[1].trim();
@@ -59,7 +65,7 @@
 				step : step	
 			};
 			//end step vars
-			var lastScenario = feature.scenarios.length > 0 ? feature.scenarios[feature.scenarios.length-1] : false;
+			var lastScenario = this.getLastScenario(feature);
 		
 			if (lastScenario) { // if scenario is present, then add step to the scenario
 				lastScenario.steps.push(stepJson);
@@ -81,7 +87,7 @@
 	}
 
 	function detectSetUp(line, feature) {
-		var setUpInfo = line.match(R_SETUP);
+		var setUpInfo = this.executeRegExp(line, R_SETUP);
 		if (!!setUpInfo) {
 			feature.setUp = {};
 		}
@@ -92,7 +98,7 @@
 	}
 
 	function detectTearDown(line, feature) {
-		var tearDownInfo = line.match(R_TEARDOWN);
+		var tearDownInfo = this.executeRegExp(line, R_TEARDOWN);
 		if (!!tearDownInfo) {
 			feature.tearDown = {};
 		}
@@ -102,6 +108,50 @@
 		};
 	}
 
+	function detectTable(line, feature) {
+		var isTableDetected = !!this.executeRegExp(line, R_TABLE);
+		if (isTableDetected) {
+			var lastScenario = this.getLastScenario(feature);
+			if (!!lastScenario) {
+				lastScenario.table = {
+					placeholdersName : [], //an array containing placeholdersName
+					placeholdersValues : [] //and array of arrayes containing the values corrisponding to the same placeholdersName values
+				}		
+			}
+		}
+		return {
+			isExecuted : isTableDetected,
+			commandName : 'detectTable'
+		};
+	}
+
+	function getLastScenario(feature) {
+		var scenarios = feature.scenarios;
+		var scenariosLength = scenarios.length;
+		if (scenariosLength > 0) {
+			return scenarios[scenariosLength-1];
+		}
+		return false;
+	}
+
+	function executeRegExp(line, reg) {
+		if (reg.constructor.name === 'RegExp') {
+			return line.match(reg);
+		} else {
+			var isValidLine;
+			for (var i = 0, r; r = reg[i]; i++) {
+				if (typeof(isValidLine) === 'undefined') {
+					isValidLine = true;
+				}
+				isValidLine = isValidLine && r.test(line);
+			}
+			if (isValidLine) {
+				return line.match(reg[i-1]);
+			}
+		}
+		return false;
+	}  
+
 	function execute(line, feature) {
 		var shouldDeleteCommand, commandsToRemove = [];
 		var commands = this.commands, commandExecution;
@@ -109,7 +159,7 @@
 		
 		for (var i = 0, command, commandExecution; command = commands[i]; i++) {
 			
-			commandExecution = command(line, feature);
+			commandExecution = command.call(this, line, feature);
 			isCommandExecuted = commandExecution.isExecuted;
 			executedCommandName = commandExecution.commandName;
 			
@@ -163,11 +213,12 @@
 	function DetectCommandClass() {
 		
 		this.commands = [
-			detectSetUp,
-			detectTearDown,
-			detectFeature,
-			detectScenario,
-			detectStep
+			this.detectSetUp,
+			this.detectTearDown,
+			this.detectFeature,
+			this.detectScenario,
+			this.detectStep,
+			this.detectTable
 		];
 
 	}
@@ -178,8 +229,11 @@
 	DetectCommandClass.prototype.detectFeature = detectFeature;
 	DetectCommandClass.prototype.detectScenario = detectScenario;
 	DetectCommandClass.prototype.detectStep = detectStep;
+	DetectCommandClass.prototype.detectTable = detectTable;
 	DetectCommandClass.prototype.shouldDeleteCommand = shouldDeleteCommand;
 	DetectCommandClass.prototype.removeCommands = removeCommands;
+	DetectCommandClass.prototype.getLastScenario = getLastScenario;
+	DetectCommandClass.prototype.executeRegExp = executeRegExp;
 
 
 	module.exports = DetectCommandClass;

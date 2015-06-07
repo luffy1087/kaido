@@ -51,8 +51,13 @@
 		
 		var detectCommand = new detectCommands();
 	
-		contentLines.forEach(function(line, index) {
-			detectCommand.execute(line, feature);
+		contentLines.forEach(function(line, index) {		
+			try {
+				detectCommand.execute(line, feature);
+			} catch (e) {
+				console.log('An error is occurred');
+				console.log(e);
+			}
 		});
 
 		return feature;
