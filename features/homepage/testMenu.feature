@@ -11,8 +11,9 @@ Feature:	my feature name 1
 		Then I can see all of the categories
 		
 	Where:
-	isoCode | action
-	it			|	click
+		isoCode | action
+		us			|	mouseover
+		it			|	click
 		
 	
 	Scenario: my second test Menu
@@ -21,5 +22,6 @@ Feature:	my feature name 1
 		Then Register popup appears
 	
 	Where:
-	isoCode | action
-	it			|	mouseover
+		isoCode | action
+		it			|	mouseover
+		us			| doubleclick

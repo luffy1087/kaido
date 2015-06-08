@@ -11,7 +11,9 @@
 	var R_FEATURE = /^Feature:(.+)/m;
 	var R_SCENARIOS = /^\tScenario:(.+)/m;
 	var R_TABLE = /^\tWhere:/m;
+	var R_PLACEHOLDER = /((?:\s|\t)*\w+(?:\s|\t)*\|?)/g;	
 	var R_STEPS = [R_START_WITH_TAB, R_MIN_TWO_WORDS, R_STEP_INFO];
+	var R_PLACEHOLDERS = [R_START_WITH_DOUBLE_TABS, R_PLACEHOLDER]
 
 	function camelize(s) {
 		return s.replace(/\s(.)/g, function(whatFound) {
@@ -114,7 +116,7 @@
 			var lastScenario = this.getLastScenario(feature);
 			if (!!lastScenario) {
 				lastScenario.table = {
-					placeholdersName : [], //an array containing placeholdersName
+					placeholdersNames : [], //an array containing placeholdersName
 					placeholdersValues : [] //and array of arrayes containing the values corrisponding to the same placeholdersName values
 				}		
 			}
@@ -122,6 +124,24 @@
 		return {
 			isExecuted : isTableDetected,
 			commandName : 'detectTable'
+		};
+	}
+
+	function detectPlaceholders(line, feature) {
+		var placeHolderInfo = this.executeRegExp(line, R_PLACEHOLDERS);
+		var table = this.getLastScenario(feature).table;
+		var isPlaceholderLine = !!placeHolderInfo && table;
+		if (!!placeHolderInfo && table) {
+			var trimmedPlaceHolders = placeHolderInfo.map(function(val){ return val.replace(/[\s\|]/g, ''); });
+			if (table.placeholdersNames.length === 0) {
+				table.placeholdersNames = trimmedPlaceHolders;
+			} else {
+				table.placeholdersValues.push(trimmedPlaceHolders);
+			}
+		}
+		return {
+			isExecuted : isPlaceholderLine,
+			command : 'detectPlaceholders'
 		};
 	}
 
@@ -150,13 +170,14 @@
 			}
 		}
 		return false;
-	}  
+	} 
 
 	function execute(line, feature) {
 		var shouldDeleteCommand, commandsToRemove = [];
 		var commands = this.commands, commandExecution;
 		var isCommandExecuted, executedCommandName;
 		
+		debugger;
 		for (var i = 0, command, commandExecution; command = commands[i]; i++) {
 			
 			commandExecution = command.call(this, line, feature);
@@ -218,7 +239,8 @@
 			this.detectFeature,
 			this.detectScenario,
 			this.detectStep,
-			this.detectTable
+			this.detectTable,
+			this.detectPlaceholders
 		];
 
 	}
@@ -230,6 +252,7 @@
 	DetectCommandClass.prototype.detectScenario = detectScenario;
 	DetectCommandClass.prototype.detectStep = detectStep;
 	DetectCommandClass.prototype.detectTable = detectTable;
+	DetectCommandClass.prototype.detectPlaceholders = detectPlaceholders;
 	DetectCommandClass.prototype.shouldDeleteCommand = shouldDeleteCommand;
 	DetectCommandClass.prototype.removeCommands = removeCommands;
 	DetectCommandClass.prototype.getLastScenario = getLastScenario;
