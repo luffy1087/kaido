@@ -25,8 +25,5 @@
   "bugs": {
     "url": "https://github.com/luffy1087/kaido/issues"
   },
-  "dependencies": {
-    "glob": "*"
-  },
   "homepage": "https://github.com/luffy1087/kaido"
 }
