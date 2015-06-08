@@ -22,6 +22,6 @@ Feature:	my feature name 1
 		Then Register popup appears
 	
 	Where:
-		isoCode | action
+		isoCode	|	action
 		it			|	mouseover
-		us			| doubleclick
+		us			|	doubleclick
