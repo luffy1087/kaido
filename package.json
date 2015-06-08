@@ -1,0 +1,32 @@
+{
+  "name": "kaido",
+  "version": "0.0.1",
+  "description": "BDD testing framework based on selenium WebDriverJs",
+  "main": "start.js",
+  "dependencies": {
+    "glob": "^5.0.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luffy1087/kaido.git"
+  },
+  "keywords": [
+    "BDD",
+    "kaido",
+    "Selenium",
+    "WebDriverJs"
+  ],
+  "author": "Luffy1087",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luffy1087/kaido/issues"
+  },
+  "dependencies": {
+    "glob": "*"
+  },
+  "homepage": "https://github.com/luffy1087/kaido"
+}
