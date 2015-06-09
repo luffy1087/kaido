@@ -1,3 +1,8 @@
+/*
+	TODO:
+		1) after scenario, before scenario
+		2) mark steps as a non-blocking in order to be informed when a steps have not passed without stopping the test. 
+*/
 (function(){
 	
 	//dependencies
@@ -41,7 +46,11 @@
 	function parseFeature(content) {
 
 		var fileName = content.fileName;
-		var contentLines = content.content.toString().split('\n');
+		var content = content.content.toString();
+		var contentFeatureWithIncludes = explodeIncludes(content); //replace placeholders with the content of the files keeping the tabs space	
+		var contentFeature = contentFeatureWithIncludes.replace(/^\s*\r?\n/mg, '');
+		
+		var contentLines = contentFeature.split('\n'); //it first removes blank lines, then splits them
 
 		//feature object to return
 		var feature = {
@@ -63,8 +72,29 @@
 		return feature;
 	}
 
-	function onParsedFeatures(features) {
-		console.log(JSON.stringify(features));
+	function explodeIncludes(contentFeature) {
+		var includesToExplode = contentFeature.match(/\t+#INCLUDE#\s+(\w+)/mg);
+		if (!!includesToExplode) {
+			var 
+				alreadyIncluded = {}
+			,	fileToInclude
+			,	filePath
+			,	fileName
+			,	startTabs;
+			for (var i = 0, includeToExplode; includeToExplode = includesToExplode[i]; i++) {	
+				fileName = includeToExplode.replace(/^\t+/, '').replace(/\s+/, ' ').split(' ')[1];
+				startTabs = includeToExplode.match(/^\t+/)[0];
+				if (!alreadyIncluded[fileName]) {
+					filePath = 'features/include/' + fileName + '.include';
+					fileToInclude = fs.readFileSync(filePath).toString().split('\n').join('\n' + startTabs);
+					alreadyIncluded[fileName] = fileToInclude;
+				} else {
+					fileToInclude = alreadyIncluded[fileName]; 
+				}
+				contentFeature = contentFeature.replace(new RegExp(includeToExplode.replace(/^\t+/, ''), 'mg'), fileToInclude);
+			}
+			return contentFeature;
+		}
 	}
 
 	function getFeatureFilesError(err) {
@@ -73,10 +103,9 @@
 	}
 
 	function parse() {
-		new Promise(getFeatureFiles)
+		return new Promise(getFeatureFiles)
 			.then(readFatureFiles, getFeatureFilesError)
-			.then(parseFeatures)
-			.then(onParsedFeatures);
+			.then(parseFeatures);
 	}
 	
 	module.exports = {

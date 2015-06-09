@@ -6,9 +6,10 @@ TearDown:
 
 Feature:	my feature name 1
 	Scenario: my first test Menu
-		Given I visit the homepage in [isoCode]
-		When I [action] on category menu
-		Then I can see all of the categories
+		#INCLUDE# StepMenu
+		Given I click the category
+		When I go to the search page
+		Then The number of products must be greater than zero
 		
 	Where:
 		isoCode | action
@@ -17,9 +18,10 @@ Feature:	my feature name 1
 		
 	
 	Scenario: my second test Menu
-		Given I visit the homepage in [isoCode]
-		When I [action] on register
-		Then Register popup appears
+		#INCLUDE# StepMenu
+		Given I click the category shoes
+		When I go to the search page
+		Then I can see three products
 	
 	Where:
 		isoCode	|	action
