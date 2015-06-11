@@ -6,9 +6,11 @@
   "dependencies": {
     "glob": "^5.0.10"
   },
-  "devDependencies": {},
+  "devDependencies": {
+		"kaidoparser": "^0.0.1"
+	},
   "scripts": {
-    "test": "node start"
+    "test": "node start.js"
   },
   "repository": {
     "type": "git",

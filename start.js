@@ -1,6 +1,6 @@
 (function() {
 	//dependencies
-	var parser = require('./parser/parser');
+	var parser = require('kaidoParser');
 
 	function onParsedFeature(features) {
 		/*
