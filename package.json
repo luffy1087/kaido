@@ -7,8 +7,8 @@
     "glob": "^5.0.10"
   },
   "devDependencies": {
-		"kaidoparser": "^0.0.1"
-	},
+     "kaidoparser": "^0.0.1"
+  },
   "scripts": {
     "test": "node start.js"
   },
