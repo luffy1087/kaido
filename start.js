@@ -1,17 +1,21 @@
 (function() {
-	//dependencies
-	var parser = require('kaidoparser');
 
-	function onParsedFeature(features) {
-		/*
-			TODO:
-				1) prepare scenarios based on table property, if any.
-				2) thinking of the logic to match steps to code and regexp dictionary
-				3) installing selenium webdriver and SeleniumWebDriverJs
-		*/
-		console.log(JSON.stringify(features));
-	}
+	var kaidoParserClass = require('kaidoparser')
+	  , kaidoMatcherClass = require('kaidomatcher')
+	  , kaidoParser = new kaidoParserClass()
+	  , kaidoMatcher;
+
 	
-	parser.parse().then(onParsedFeature);
+	kaidoParser.start()
+
+	.then(function(parsedFeature) {
+		kaidoMatcher = new kaidoMatcherClass(parsedFeature);
+	})
+
+	.then(function() {
+		kaidoMatcher.start().then(function() {
+			console.log('THAT DID IT WELL');
+		}) // it raises an error because features do not match the code. diffents names.
+	});
 
 })();

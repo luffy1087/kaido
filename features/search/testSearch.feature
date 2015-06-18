@@ -4,17 +4,17 @@ SetUp:
 TearDown:
 	Log tearDown string
 
-Feature:	my feature name 1
+Feature: my feature name 1
 	Scenario: my first test Menu
 		#INCLUDE# StepMenu
 		Given I click the category
 		When I go to the search page
 		Then The number of products must be greater than zero
 		
-	Where:
-		isoCode | action
-		us			|	mouseover
-		it			|	click
+	Table:
+		isoCode | 	action
+		us		|	mouseover
+		it		|	click
 		
 	
 	Scenario: my second test Menu
@@ -25,5 +25,5 @@ Feature:	my feature name 1
 	
 	Where:
 		isoCode	|	action
-		it			|	mouseover
-		us			|	doubleclick
+		it		|	mouseover
+		us		|	doubleclick

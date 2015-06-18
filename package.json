@@ -3,12 +3,6 @@
   "version": "0.0.1",
   "description": "BDD testing framework based on selenium WebDriverJs",
   "main": "start.js",
-  "dependencies": {
-    "glob": "^5.0.10"
-  },
-  "devDependencies": {
-     "kaidoparser": "^0.0.1"
-  },
   "scripts": {
     "test": "node start.js"
   },
@@ -27,5 +21,14 @@
   "bugs": {
     "url": "https://github.com/luffy1087/kaido/issues"
   },
-  "homepage": "https://github.com/luffy1087/kaido"
+  "homepage": "https://github.com/luffy1087/kaido",
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "should": "^6.0.3",
+    "sinon": "^1.15.3"
+  },
+  "dependencies": {
+    "glob": "^5.0.10",
+    "promise": "^7.0.3"
+  }
 }
